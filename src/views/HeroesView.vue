@@ -2,7 +2,7 @@
     <div class="container mx-auto p-2 md:p-4">
         <div class="flex md:flex-row flex-col justify-between items-center  gap-2">
             <h1 class="text-2xl font-bold text-gray-700 underline">Lista de Heroes</h1>
-            <button class="button" data-modal-target="create-edit-hero" data-modal-toggle="create-edit-hero">
+            <button class="button" @click="cleanHero">
                 Crear héroe
             </button>
         </div>
@@ -10,24 +10,24 @@
             <div class="flex flex-col md:flex-row flex-wrap gap-3">
                 <div class="card-hero  bg-gray-600 rounded-lg" v-for="hero in heroesStore.heroes">
                     <div class="card-data flex flex-col md:flex-row gap-3 p-3 items-center md:items-start">
-                        <img class="rounded-lg" :src="hero.picture" alt="" v-if="hero.picture">
+                        <img class="rounded-lg" @error="hero.picture = defaultImagen" :src="hero.picture" :alt="`El nombre del héroe es ${hero.name}`" v-if="hero.picture" :key="hero.picture">
                         <img class="rounded-lg" src="@/assets/img/Personaje_Desconocido.jpg" alt="" v-else>
                         <div class="flex flex-col flex-wrap">
-                            <h3 class="text-lg font-bold text-white">{{ hero.name }}</h3>
+                            <h3 class="text-lg font-bold text-white mb-2">{{ hero.name }}</h3>
                             <div class="attributes-chips flex flex-wrap rounded-md gap-2 ">
-                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-24">
+                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-25">
                                     Fuerza: {{ hero.attributes.strength }}
                                 </div>
-                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-24">
+                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-25">
                                     Agilidad: {{ hero.attributes.agility }}
                                 </div>
-                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-24">
+                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-25">
                                     Carisma: {{ hero.attributes.charisma }}
                                 </div>
-                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-24">
+                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-25">
                                     Peso: {{ hero.attributes.weight }}
                                 </div>
-                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-24">
+                                <div class="bg-gray-300 p-1 text-gray-600 text-sm rounded-full w-25">
                                     Resistencia: {{ hero.attributes.endurance }}
                                 </div>
                             </div>
@@ -35,42 +35,14 @@
                     </div>
 
                     <div class="card-actions p-3 flex flex-col md:flex-row justify-between w-full gap-2">
-                        <button class="!bg-red-600 hover:!bg-red-500 button">Borrar héroe</button>
-                        <button class="button">Editar héroe</button>
+                        <button class="!bg-red-600 hover:!bg-red-500 font-bold button">Borrar héroe</button>
+                        <button class="font-bold button" @click="loadHero(hero)">Editar héroe</button>
                     </div>
                 </div>
-                <!-- <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-white uppercase bg-gray-900">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-center">
-                                Foto
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-center">
-                                Nombre
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-center">
-                                Acciones
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="bg-white border-b border-gray-200" v-for="hero in heroesStore.heroes">
-                            <td scope="row" class="px-6 py-4 font-medium text-gray-900 text-center whitespace-nowrap">
-                                
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                {{ hero.name }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                a
-                            </td>
-                        </tr>
-                    </tbody>
-                </table> -->
             </div>
         </div>
         
-        <CreateEditHero html-id="create-edit-hero"></CreateEditHero>
+        <CreateEditHero @changeHero="getListHeroes" :html-id="idPopupCreate" :hero="hero"></CreateEditHero>
         
     </div>
 </template>
@@ -79,15 +51,58 @@
     import type { Hero } from '@/interfaces/heroes';
     import { useHeroeStore } from '@/stores/heroesStore';
     import { onMounted, ref } from 'vue';
-    import { initFlowbite } from 'flowbite'
+    import { initFlowbite, Modal } from 'flowbite'
     import CreateEditHero from '@/components/CreateEditHero.vue';
+    import defaultImagen from '@/assets/img/Personaje_Desconocido.jpg';
     
     const heroesStore = useHeroeStore();
     const messageError = ref("");
+    const idPopupCreate = "create-edit-hero"
+    let modal:Modal; 
 
-    onMounted(async ()=>{
+    const hero = ref<Hero>({
+        id: "",
+        name: "",
+        picture: "",
+        attributes: {
+            agility: 1,
+            strength: 1,
+            weight: 1,
+            endurance: 1,
+            charisma: 1,
+        }
+    });
+    
+
+    function cleanHero() {
+        hero.value = {
+            id: "",
+            name: "",
+            picture: "",
+            attributes: {
+                agility: 1,
+                strength: 1,
+                weight: 1,
+                endurance: 1,
+                charisma: 1,
+            }
+        }
+        modal.show()
+    }
+    
+    function loadHero(heroCard: Hero) {
+        hero.value = heroCard;
+        modal.show()
+    }
+
+    async function getListHeroes() {
         const result = await heroesStore.getListHero();
         messageError.value = result !== 'OK' ? result : "";
+    }
+
+    onMounted(async ()=>{
+        await getListHeroes()
+        modal = new Modal(document.getElementById(idPopupCreate));
         initFlowbite();
     })
 </script>

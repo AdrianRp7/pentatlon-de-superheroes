@@ -8,7 +8,7 @@
                     <h3 class="text-lg font-semibold text-white">
                         Create New Hero
                     </h3>
-                    <button type="button" class="text-gray-400 bg-transparent  hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center hover:bg-gray-600 hover:text-white" :data-modal-toggle="props.htmlId">
+                    <button type="button" class="text-gray-400 bg-transparent rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center hover:bg-gray-600 hover:text-white" :data-modal-toggle="props.htmlId">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
@@ -62,9 +62,10 @@
                     <div class="flex flex-row-reverse">
                         <button type="submit" class="flex items-center gap-1 button mt-3" @click.prevent="uploadHero">
                             <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-                            Añadir Héroe
+                            {{hero.id === '' ? 'Añadir Héroe' : 'Modificar Héroe'}}
                         </button>
                     </div>
+                    <p class="font-bold mt-4" :class="{'text-green-200': resultUpload.status === 'OK', 'text-red-600': resultUpload.status === 'ERROR'}" v-if="resultUpload.result.length !== 0">{{ resultUpload.result }}</p>
                 </form>
             </div>
         </div>
@@ -75,33 +76,26 @@
     import rangeAtributes from "@/assets/ts/rangeAtributes"
     import type { Hero } from "@/interfaces/heroes";
     import { useHeroeStore } from "@/stores/heroesStore";
-    import { reactive, ref } from "vue";
+    import { ref, toRaw, watch } from "vue";
+    import { type helperApiReturn } from "../interfaces/utils";
 
+    const atributesSelectRange = rangeAtributes;
 
     interface Props {
         htmlId:string,
-        hero?: Hero,
+        hero: Hero,
     }
+    const props = defineProps<Props>();
 
-    const props = withDefaults(defineProps<Props>(), {
-        hero: () => ({
-            id: "",
-            name: "",
-            picture: "",
-            attributes: {
-                agility: 1,
-                strength: 1,
-                weight: 1,
-                endurance: 1,
-                charisma: 1,
-            }
-        })
-    });
-    const atributesSelectRange = rangeAtributes;
     const storeHero = useHeroeStore();
+    
+    const emit = defineEmits<{
+        (e: 'changeHero'): void
+    }>();
 
     //+++ Datos del formulario ++++
-    const hero = ref<Hero>(props.hero)
+    
+    const hero = ref<Hero>(structuredClone(toRaw(props.hero)))
     
 
     async function uploadHero(): Promise<void> {
@@ -115,16 +109,19 @@
         if(errorName.value !== "")
             return;
 
-        resultUpload.value = await storeHero.createHero(hero.value);
+        if(hero.value.id === '') 
+            resultUpload.value = await storeHero.createHero(hero.value);
+        else
+            resultUpload.value = await storeHero.updateHero(hero.value);
 
-        console.log(resultUpload)
+        emit('changeHero');
     }
 
 
     //Control de errores
     const errorPicture = ref<string>("");
     const errorName = ref<string>("");
-    const resultUpload = ref<string>("");
+    const resultUpload = ref<helperApiReturn<string>>({status: 'OK', result: ""});
 
     function validateName(): void {
         const regex = /^[A-ZÁÉÍÓÚÑa-záéíóúñ ]+([ '-][A-ZÁÉÍÓÚÑa-záéíóúñ ]+)*( [A-ZÁÉÍÓÚÑa-záéíóúñ ]+([ '-][A-ZÁÉÍÓÚÑa-záéíóúñ ]+)*)?$/
@@ -139,7 +136,6 @@
             errorName.value = "El nombre tiene carácteres no validos";
         
     }
-
 
 
     //+++ Funcionalidad para la subida de la imagen +++
@@ -214,8 +210,12 @@
             }
         }
     }
-</script>
 
-<style scoped>
-    
-</style>
+    watch(() => props.hero, async (newHero) => {
+        //Actualiza con los datos del nuevo héroe y updatea
+        hero.value = structuredClone(toRaw(newHero));
+        errorPicture.value = ""
+        errorName.value = ""
+        resultUpload.value = {status: 'OK', result: ""}
+    })
+</script>

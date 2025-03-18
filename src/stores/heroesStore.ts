@@ -2,23 +2,23 @@ import {ref} from 'vue'
 import { defineStore } from 'pinia'
 import { type Hero } from '@/interfaces/heroes'
 import heroesApi, {returnErrorMessage} from '@/api/heroesApi'
-import axios, { AxiosError } from 'axios'
+import type { helperApiReturn } from '@/interfaces/utils'
 
 
-export const useHeroeStore = defineStore('heroe',() => {
+export const useHeroeStore = defineStore('heroe', () => {
     const heroes = ref<Hero[]>([])
 
-    const createHero = async (hero:Hero) => {
-        let messageResult = "";
+    const createHero = async (hero:Hero):Promise<helperApiReturn<string>> => {
+        let resultReturn:helperApiReturn<string> = { status: "ERROR", result: "Error desconocido, pruebe más tarde" };
         try {
-            const result:Hero = await heroesApi.post('/pentathlon/heroes/', hero);
+            const result:Hero = (await heroesApi.post('/pentathlon/heroes/', hero)).data;
 
-            messageResult = `El heroe ${result.name} ha sido creado correctamente`
+            resultReturn = {status: "OK", result:`El heroe ${result.name} ha sido creado correctamente`}
         } catch(error) {
-            messageResult = returnErrorMessage(error)
+            resultReturn = {status: "ERROR", result: returnErrorMessage(error)}
         }
 
-        return messageResult;
+        return resultReturn;
     }
 
     const getHero = async (id: string) => {
@@ -48,21 +48,21 @@ export const useHeroeStore = defineStore('heroe',() => {
         return messageResult;
     }
 
-    const updateHero = async (hero:Hero) => {
-        let messageResult = "";
+    const updateHero = async (hero:Hero):Promise<helperApiReturn<string>> => {
+        let resultReturn:helperApiReturn<string> = { status: "ERROR", result: "Error desconocido, pruebe más tarde" };
         if(hero.id) {
             try {
-                const result:Hero = await heroesApi.put(`/pentathlon/heroes/${hero.id}`, hero);
-    
-                messageResult = `El heroe ${result.name} ha sido modificado correctamente`
+                const result:Hero = (await heroesApi.put(`/pentathlon/heroes/${hero.id}`, hero)).data;
+                
+                resultReturn = {status: "OK", result:`El heroe ${result.name} ha sido modificado correctamente`}
             } catch(error) {
-                messageResult = returnErrorMessage(error)
+                resultReturn = {status: "ERROR", result: returnErrorMessage(error)}
             }
         } else {
-            messageResult = "Debes añadir el id del heroe para modificarlo."
+            resultReturn = {status: "ERROR", result: "Debes añadir el id del heroe para modificarlo."}
         }
 
-        return messageResult;
+        return resultReturn;
     }
 
     const deleteHero = async (id: string) => {
