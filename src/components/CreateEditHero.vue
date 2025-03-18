@@ -59,13 +59,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="flex flex-row-reverse">
+                    <div class="flex flex-row-reverse" v-if="resultUpload.status === 'ERROR'">
                         <button type="submit" class="flex items-center gap-1 button mt-3" @click.prevent="uploadHero">
                             <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
                             {{hero.id === '' ? 'Añadir Héroe' : 'Modificar Héroe'}}
                         </button>
+                        <p class="font-bold mt-4 text-red-600 text-center" v-if="resultUpload.result.length !== 0">{{ resultUpload.result }}</p>
                     </div>
-                    <p class="font-bold mt-4" :class="{'text-green-200': resultUpload.status === 'OK', 'text-red-600': resultUpload.status === 'ERROR'}" v-if="resultUpload.result.length !== 0">{{ resultUpload.result }}</p>
+                    <p class="font-bold mt-4 text-green-200 text-center" v-else>{{ resultUpload.result }}</p>
                 </form>
             </div>
         </div>
@@ -121,7 +122,7 @@
     //Control de errores
     const errorPicture = ref<string>("");
     const errorName = ref<string>("");
-    const resultUpload = ref<helperApiReturn<string>>({status: 'OK', result: ""});
+    const resultUpload = ref<helperApiReturn<string>>({status: 'ERROR', result: ""});
 
     function validateName(): void {
         const regex = /^[A-ZÁÉÍÓÚÑa-záéíóúñ ]+([ '-][A-ZÁÉÍÓÚÑa-záéíóúñ ]+)*( [A-ZÁÉÍÓÚÑa-záéíóúñ ]+([ '-][A-ZÁÉÍÓÚÑa-záéíóúñ ]+)*)?$/
@@ -216,6 +217,6 @@
         hero.value = structuredClone(toRaw(newHero));
         errorPicture.value = ""
         errorName.value = ""
-        resultUpload.value = {status: 'OK', result: ""}
+        resultUpload.value = {status: 'ERROR', result: ""}
     })
 </script>

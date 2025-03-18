@@ -43,7 +43,7 @@
         </div>
         
         <CreateEditHero @changeHero="getListHeroes" :html-id="idPopupCreate" :hero="hero"></CreateEditHero>
-        <DeleteHero  @deleteHero="getListHeroes" :html-id="idPopupDelete" :hero="hero"></DeleteHero>
+        <DeleteHero @deleteHero="getListHeroes" :html-id="idPopupDelete" :hero="hero"></DeleteHero>
     </div>
 </template>
 
@@ -90,7 +90,7 @@
                 charisma: 1,
             }
         }
-        modal.show()
+        modalCreateEdit.show()
     }
     
     function loadHero(heroCard: Hero) {
