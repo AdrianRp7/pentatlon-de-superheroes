@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
-button, .button {
+button {
+    @apply cursor-pointer;
+}
+
+.button {
     @apply rounded-lg cursor-pointer p-4 bg-gray-900 text-white hover:bg-gray-700 focus:outline-none;
 }
 
+.background-popup {
+    background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75));
+}
