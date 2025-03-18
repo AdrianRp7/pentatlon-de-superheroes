@@ -2,7 +2,6 @@ import {ref} from 'vue'
 import { defineStore } from 'pinia'
 import { type Hero } from '@/interfaces/heroes'
 import heroesApi, {returnErrorMessage} from '@/api/heroesApi'
-import type { errorApi } from '@/interfaces/erroresApi'
 import axios, { AxiosError } from 'axios'
 
 
@@ -38,9 +37,10 @@ export const useHeroeStore = defineStore('heroe',() => {
     const getListHero = async () => {
         let messageResult = "";
         try {
-            const result:Hero[] = await heroesApi.post(`/pentathlon/heroes/`);
+            const result:Hero[] = (await heroesApi.get(`/pentathlon/heroes/`)).data;
 
-            return result;
+            heroes.value = result;
+            messageResult = "OK"
         } catch(error) {
             messageResult = returnErrorMessage(error)
         }
@@ -68,7 +68,7 @@ export const useHeroeStore = defineStore('heroe',() => {
     const deleteHero = async (id: string) => {
         let messageResult = "";
         try {
-            const result:{done:string} = await heroesApi.post(`/pentathlon/heroes/`);
+            const result:{done:string} = await heroesApi.post(`/pentathlon/heroes/$`);
 
             if (result.done) {
                 messageResult = "El héroe ha sido borrado con éxito"

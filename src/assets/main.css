@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+button, .button {
+    @apply rounded-lg cursor-pointer p-4 bg-gray-900 text-white hover:bg-gray-700 focus:outline-none;
+}
+
