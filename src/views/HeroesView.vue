@@ -35,15 +35,15 @@
                     </div>
 
                     <div class="card-actions p-3 flex flex-col md:flex-row justify-between w-full gap-2">
-                        <button class="!bg-red-600 hover:!bg-red-500 font-bold button">Borrar héroe</button>
-                        <button class="font-bold button" @click="loadHero(hero)">Editar héroe</button>
+                        <button class="button-danger" @click="deleteHero(hero)">Borrar héroe</button>
+                        <button class="button" @click="loadHero(hero)">Editar héroe</button>
                     </div>
                 </div>
             </div>
         </div>
         
         <CreateEditHero @changeHero="getListHeroes" :html-id="idPopupCreate" :hero="hero"></CreateEditHero>
-        
+        <DeleteHero  @deleteHero="getListHeroes" :html-id="idPopupDelete" :hero="hero"></DeleteHero>
     </div>
 </template>
 
@@ -54,11 +54,14 @@
     import { initFlowbite, Modal } from 'flowbite'
     import CreateEditHero from '@/components/CreateEditHero.vue';
     import defaultImagen from '@/assets/img/Personaje_Desconocido.jpg';
+    import DeleteHero from '@/components/DeleteHero.vue';
     
     const heroesStore = useHeroeStore();
     const messageError = ref("");
     const idPopupCreate = "create-edit-hero"
-    let modal:Modal; 
+    const idPopupDelete = "delete-hero"
+    let modalCreateEdit:Modal; 
+    let modalDelete:Modal; 
 
     const hero = ref<Hero>({
         id: "",
@@ -92,7 +95,12 @@
     
     function loadHero(heroCard: Hero) {
         hero.value = heroCard;
-        modal.show()
+        modalCreateEdit.show()
+    }
+
+    function deleteHero(heroCard: Hero) {
+        hero.value = heroCard;
+        modalDelete.show()
     }
 
     async function getListHeroes() {
@@ -102,7 +110,8 @@
 
     onMounted(async ()=>{
         await getListHeroes()
-        modal = new Modal(document.getElementById(idPopupCreate));
+        modalCreateEdit = new Modal(document.getElementById(idPopupCreate));
+        modalDelete = new Modal(document.getElementById(idPopupDelete));
         initFlowbite();
     })
 </script>

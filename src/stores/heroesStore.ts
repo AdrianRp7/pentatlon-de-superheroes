@@ -65,22 +65,22 @@ export const useHeroeStore = defineStore('heroe', () => {
         return resultReturn;
     }
 
-    const deleteHero = async (id: string) => {
-        let messageResult = "";
+    const deleteHero = async (id: string):Promise<helperApiReturn<string>> => {
+        let resultReturn:helperApiReturn<string> = { status: "ERROR", result: "Error desconocido, pruebe más tarde" };
         try {
-            const result:{done:string} = await heroesApi.post(`/pentathlon/heroes/$`);
+            const result:{done:string} = (await heroesApi.delete(`/pentathlon/heroes/${id}`)).data;
 
             if (result.done) {
-                messageResult = "El héroe ha sido borrado con éxito"
+                resultReturn = {status: "OK", result: "El héroe ha sido borrado con éxito"}
             } else {
-                messageResult = "El héroe no ha podido ser borrado con éxito"
+                resultReturn = {status: "ERROR",  result: "El héroe no ha podido ser borrado con éxito"}
             }
 
         } catch(error) {
-            messageResult = returnErrorMessage(error)
+            resultReturn = {status: "ERROR",  result: returnErrorMessage(error)}
         }
 
-        return messageResult;
+        return resultReturn;
     }
 
 
