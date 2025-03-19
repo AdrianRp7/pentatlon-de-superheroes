@@ -18,7 +18,7 @@
                 </CardHero>
             </div>
             <div class="flex flex-row justify-center" v-else>
-                <h2 class="text-lg font-bold text-gray-500 mt-8 text-center">No has insertado ningún héroe, inténtalo</h2>
+                <h2 class="text-lg font-bold text-gray-500 mt-8 text-center">No has insertado ningún héroe</h2>
             </div>
         </div>
         
