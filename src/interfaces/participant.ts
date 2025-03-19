@@ -4,4 +4,5 @@ export interface Participant {
     hero:Hero,
     score:number,
     trialsWon: number[],
+    position: number
 }

@@ -1,8 +1,6 @@
 <script setup lang="ts">
   import Navbar from './components/utils/Navbar.vue';
   import Footer from './components/utils/Footer.vue';
-
-  console.log(import.meta.env.VITE_API_URL)
 </script>
 
 <template>

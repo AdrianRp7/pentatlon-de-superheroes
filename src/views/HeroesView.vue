@@ -6,7 +6,7 @@
                 Crear héroe
             </button>
         </div>
-        <div class="mt-4">
+        <div class="cards-container mt-4">
             <div class="flex flex-col md:flex-row flex-wrap justify-between gap-3" v-if="heroesStore.heroes.length !== 0">
                 <CardHero :hero="hero" v-for="hero in heroesStore.heroes">
                     <template #actions>
@@ -105,5 +105,10 @@
         :deep(.card-hero) {
             width: calc(50% - 10px);
         }
+    }
+
+    .cards-container {
+        max-height: 80vh;
+        overflow-y: auto;
     }
 </style>
