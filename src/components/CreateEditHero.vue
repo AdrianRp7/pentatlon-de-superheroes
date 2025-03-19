@@ -25,7 +25,7 @@
                         </div>
                         <div class="col-span-2">
                             <label for="file" class="block mb-2 text-sm font-medium text-white">Foto</label>
-                            <input class="block w-full text-sm border rounded-lg cursor-pointer text-gray-400 focus:outline-none bg-gray-700 border-gray-600 placeholder-gray-400 file:bg-gray-900 file:hover:bg-gray-700 file:text-white file:p-2.5 file:cursor-pointer" id="file_input" type="file" accept="image/*" @change="handleFileUpload">
+                            <input ref="file-image" class="block w-full text-sm border rounded-lg cursor-pointer text-gray-400 focus:outline-none bg-gray-700 border-gray-600 placeholder-gray-400 file:bg-gray-900 file:hover:bg-gray-700 file:text-white file:p-2.5 file:cursor-pointer" id="file_input" type="file" accept="image/*" @change="handleFileUpload">
                             <p class="text-red-600 text-sm mt-1" v-if="errorPicture.length !== 0">{{ errorPicture }}</p>
                         </div>
                         <div class="col-span-2 sm:col-span-1">
@@ -77,7 +77,7 @@
     import rangeAtributes from "@/assets/ts/rangeAtributes"
     import type { Hero } from "@/interfaces/heroes";
     import { useHeroeStore } from "@/stores/heroesStore";
-    import { ref, toRaw, watch } from "vue";
+    import { ref, toRaw, useTemplateRef, watch } from "vue";
     import { type helperApiReturn } from "../interfaces/utils";
 
     const atributesSelectRange = rangeAtributes;
@@ -97,6 +97,8 @@
     //+++ Datos del formulario ++++
     
     const hero = ref<Hero>(structuredClone(toRaw(props.hero)))
+    //Para limpiar el input cada vez que se vuelve abrir el popup
+    const fileInput = useTemplateRef<HTMLInputElement | null>('file-image')
     
 
     async function uploadHero(): Promise<void> {
@@ -217,6 +219,8 @@
         hero.value = structuredClone(toRaw(newHero));
         errorPicture.value = ""
         errorName.value = ""
+        if(fileInput.value)
+            fileInput.value.value = null;
         resultUpload.value = {status: 'ERROR', result: ""}
     })
 </script>
