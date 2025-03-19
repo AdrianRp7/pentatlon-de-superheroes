@@ -5,8 +5,8 @@
 <template>
     <nav class="h-16 border-gray-200 bg-gray-900">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-            <router-link :to="{name: 'landing'}" class="flex items-center space-x-3 rtl:space-x-reverse">
-                <img src="" class="h-8" alt="" />
+            <router-link :to="{name: 'landing'}" class="flex items-center space-x-3 rtl:space-x-reverse bg-gray-900">
+                <img src="@/assets/img/logo.png" class="h-8 bg-gray-900" alt="Logo página web pentatlón" />
                 <span class="self-center text-2xl font-semibold whitespace-nowrap text-white"></span>
             </router-link>
             <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm rounded-lg md:hidden focus:outline-none focus:ring-2 text-gray-400 hover:bg-gray-700 focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
