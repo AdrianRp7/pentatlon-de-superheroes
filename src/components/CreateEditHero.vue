@@ -25,6 +25,7 @@
                         </div>
                         <div class="col-span-2">
                             <label for="file" class="block mb-2 text-sm font-medium text-white">Foto</label>
+                            <img class="my-2 mx-auto" :src="hero.picture" v-if="hero.picture && hero.picture!==''">
                             <input ref="file-image" class="block w-full text-sm border rounded-lg cursor-pointer text-gray-400 focus:outline-none bg-gray-700 border-gray-600 placeholder-gray-400 file:bg-gray-900 file:hover:bg-gray-700 file:text-white file:p-2.5 file:cursor-pointer" id="file_input" type="file" accept="image/*" @change="handleFileUpload">
                             <p class="text-red-600 text-sm mt-1" v-if="errorPicture.length !== 0">{{ errorPicture }}</p>
                         </div>
@@ -64,8 +65,8 @@
                             <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
                             {{hero.id === '' ? 'Añadir Héroe' : 'Modificar Héroe'}}
                         </button>
-                        <p class="font-bold mt-4 text-red-600 text-center" v-if="resultUpload.result.length !== 0">{{ resultUpload.result }}</p>
                     </div>
+                    <p class="font-bold mt-4 text-red-600 text-center" v-if="resultUpload.status === 'ERROR' && resultUpload.result.length !== 0">{{ resultUpload.result }}</p>
                     <p class="font-bold mt-4 text-green-200 text-center" v-else>{{ resultUpload.result }}</p>
                 </form>
             </div>
@@ -220,7 +221,7 @@
         errorPicture.value = ""
         errorName.value = ""
         if(fileInput.value)
-            fileInput.value.value = null;
+            fileInput.value.value = "";
         resultUpload.value = {status: 'ERROR', result: ""}
     })
 </script>

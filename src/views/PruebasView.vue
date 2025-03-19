@@ -49,6 +49,9 @@
     import { storeToRefs } from 'pinia';
     import { onMounted, ref} from 'vue';
 
+    interface resultTrialPentatlon {
+        index: number, result:number
+    }
 
     const storeHero = useHeroeStore()
     const {heroes} = storeToRefs(storeHero)
@@ -89,7 +92,7 @@
     /*** Calcular resultados ***/
     const ranking = ref<Participant[]>([]);
 
-    function orderResult(resultTrial:{index: number, result:number}[]):{index: number, result:number}[] {
+    function orderResult(resultTrial:resultTrialPentatlon[]):resultTrialPentatlon[] {
         return resultTrial.sort((result1, result2) => {
             if(result1.result > result2.result)
                 return -1;
@@ -100,8 +103,8 @@
         })
     }
 
-    function givePoints(participants:Participant[], resultTrial:{index: number, result:number}[], trial:number) {
-        const resultByScored:{index: number, result:number}[] = orderResult(resultTrial)
+    function givePoints(participants:Participant[], resultTrial:resultTrialPentatlon[], trial:number) {
+        const resultByScored:resultTrialPentatlon[] = orderResult(resultTrial)
         resultByScored.forEach((result, index) => {
             //Los resultados están ordenados por puntuación
             if(index === 0) {
@@ -138,18 +141,16 @@
     function doPentatlon():Participant[] {
         let participants:Participant[] = [];
         heroesPentatlon.value.forEach(hero => {
-            participants.push({hero: hero, score: 0, trialsWon: []})
+            participants.push({hero: hero, score: 0, trialsWon: [], position: 0})
         });
 
         //Prueba 1: Trepar Rascacielos
-        let results: {index: number, result:number}[] = []
+        let results: resultTrialPentatlon[] = []
         participants.forEach((participant,index) => {
             results.push({index, result: participant.hero.attributes.strength * 4 - participant.hero.attributes.weight * 2})
         })
 
         givePoints(participants, results, 1);
-        console.log("Resultados: ", results)
-        console.log("Participantes: ", participants)
 
         //Prueba 2: Contar chiste
         results = []
@@ -159,13 +160,10 @@
                 .reduce((previousValue:number, currentValue:Participant)=>{
                     return currentValue.hero.attributes.charisma + previousValue
                 }, 0)
-            console
             results.push({index, result: (participant.hero.attributes.charisma ** 2) - charismaRivals})
         })
 
         givePoints(participants, results, 2);
-        console.log("Resultados: ", results)
-        console.log("Participantes: ", participants)
 
         //Prueba 3: Tiro al villano
         results = []
@@ -175,8 +173,7 @@
         })
 
         givePoints(participants, results, 3);
-        console.log("Resultados: ", results)
-        console.log("Participantes: ", participants)
+
         //Prueba 4: 200km lisos
         results = []
         participants.forEach((participant,index) => {
@@ -185,8 +182,6 @@
         })
 
         givePoints(participants, results, 4);
-        console.log("Resultados: ", results)
-        console.log("Participantes: ", participants)
 
         //Prueba 5: Rescate de cien gatitos
 
@@ -197,8 +192,6 @@
         })
 
         givePoints(participants, results, 5);
-        console.log("Resultados: ", results)
-        console.log("Participantes: ", participants)
 
         return participants;
     }

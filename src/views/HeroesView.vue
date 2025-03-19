@@ -107,8 +107,11 @@
         }
     }
 
-    .cards-container {
-        max-height: 80vh;
-        overflow-y: auto;
+    @media screen and (min-width: 768px) {
+        .cards-container {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
     }
+
 </style>

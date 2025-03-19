@@ -34,7 +34,7 @@ export const useHeroeStore = defineStore('heroe', () => {
         return messageResult;
     }
 
-    const getListHero = async () => {
+    const getListHero = async ():Promise<string> => {
         let messageResult = "";
         try {
             const result:Hero[] = (await heroesApi.get(`/pentathlon/heroes/`)).data;

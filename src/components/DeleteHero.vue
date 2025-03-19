@@ -18,7 +18,7 @@
                             <button @click="deleteHero" type="button" class="button-danger">
                                 Sí, estoy seguro
                             </button>
-                            <button :data-modal-hide="htmlId" type="button" class="button">No, quiero volver</button>
+                            <button type="button" :data-modal-hide="props.htmlId" class="button">No, quiero volver</button>
                         </div>
                         <p class="font-bold mt-4 text-red-600 text-sm" v-if="resultDelete.result.length !== 0">{{ resultDelete.result }}</p>
                     </div>
