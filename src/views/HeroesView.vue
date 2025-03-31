@@ -31,9 +31,9 @@
     import type { Hero } from '@/interfaces/heroes';
     import { onMounted, ref, useTemplateRef } from 'vue';
     import { initFlowbite, Modal } from 'flowbite'
-    import CreateEditHero from '@/components/CreateEditHero.vue';
-    import CardHero from '@/components/CardHero.vue';
-    import DeleteHero from '@/components/DeleteHero.vue';
+    import CreateEditHero from '@/components/Hero/CreateEditHero.vue';
+    import CardHero from '@/components/Hero/CardHero.vue';
+    import DeleteHero from '@/components/Hero/DeleteHero.vue';
     import { useHero } from '@/composables/heroesComposable';
     
     const {getEmptyHero, getListHero} = useHero();

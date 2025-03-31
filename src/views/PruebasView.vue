@@ -9,8 +9,8 @@
                     <select 
                         class="border text-sm rounded-lg focus:ring-primary-500 focus:outline-none focus:border-primary-500 block 
                         w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white focus:ring-primary-500 focus:border-primary-500"
-                        v-model="heroesPentatlon[i-1]" @change="verifyParticipants">
-                            <option v-for="hero in heroes" :key="hero.id" :value="hero">{{ hero.name }}</option>
+                        v-model="heroesPentatlon[i-1]">
+                            <option v-for="hero in heroList" :key="hero.id" :value="hero">{{ hero.name }}</option>
                     </select>
                     <CardHero class="my-4" :hero="heroesPentatlon[i-1]" v-if="heroesPentatlon[i-1]"></CardHero>
                 </div>
@@ -23,7 +23,7 @@
             <section aria-label="Resultados" class="mt-4 md:mt-7 mb-10" v-if="ranking.length !== 0">
                 <p class="text-2xl text-black font-bold">El ganador del pentatlón es: {{ ranking[0].hero.name  }}</p>
                 <div class="flex flex-col md:flex-row justify-between gap-6 mt-8">
-                    <div class="flex-1/3" v-for="(rank, index) in ranking" :key="rank.hero.id + 'ranking'">
+                    <div class="flex-1/3" v-for="(rank) in ranking" :key="rank.hero.id + 'ranking'">
                         <div class="flex flex-col gap-1 items-center p-8 rounded-2xl" :class="{'bg-gold': rank.position === 1 , 'bg-silver': rank.position === 2, 'bg-copper': rank.position === 3}">
                             <p class="text-sm text-black mb-4">{{ rank.score }} <br> Puntos</p>
                             <div class="flex flex-row items-center gap-5">
@@ -42,46 +42,40 @@
 </template>
 
 <script lang="ts" setup>
-    import CardHero from '@/components/CardHero.vue';
+    import CardHero from '@/components/Hero/CardHero.vue';
     import { useHero } from '@/composables/heroesComposable';
     import type { Hero } from '@/interfaces/heroes';
     import type { Participant, resultTrialPentatlon } from '@/interfaces/participant';
-    import { onMounted, ref} from 'vue';
+    import { computed, onMounted, ref} from 'vue';
 
     const {getListHero} = useHero();
     const heroList = ref<Hero[]>([]);
     const TOTALHEROES:number = 3
 
     const heroesPentatlon = ref<Hero[]>([]);
-    const messagePentatlon = ref("");
-
-    function doAnotherPentatlon() {
-        heroesPentatlon.value = []
-        ranking.value = []
-    }
 
     function heroDuplicated():boolean {
-        let heroIsDuplicated:boolean = false;
+        let heroesSet = new Set();
         
-        heroesPentatlon.value.forEach(hero => {
-            if(heroesPentatlon.value.filter(heroFilter => heroFilter.id === hero.id).length > 1) {
-                heroIsDuplicated = true
+        return heroesPentatlon.value.some(hero => {
+            if(heroesSet.has(hero.id)) return true;
+            else {
+                heroesSet.add(hero.id)
+                return false
             }
         })
-
-        return heroIsDuplicated;
     }
 
-    function verifyParticipants():void {
+    const messagePentatlon = computed(():string => {
         if(heroDuplicated()) {
-            messagePentatlon.value = "El mismo héroe no puede participar dos veces";
+            return "El mismo héroe no puede participar dos veces";
         }
         else if(heroesPentatlon.value.length !== TOTALHEROES) {
-            messagePentatlon.value = "";
+            return "";
         } 
         else
-            messagePentatlon.value = "OK"
-    }
+            return "OK"
+    });
 
 
     /*** Calcular resultados ***/
@@ -191,24 +185,22 @@
         return participants;
     }
 
+    /*** Cambiar el estado del pentatlón ***/
+    function doAnotherPentatlon() {
+        heroesPentatlon.value = []
+        ranking.value = []
+    }
+
     function getWinner() {
         ranking.value = doPentatlon();
         
-        ranking.value = ranking.value.sort((result1, result2) => {
-            if(result1.score > result2.score)
-                return -1;
-            else if(result1.score < result2.score)
-                return 1;
+        ranking.value = ranking.value.sort((result1, result2) => result2.score - result1.score)
 
-            return 0;
-        })
 
-        ranking.value = ranking.value.map((element, index):Participant => {
+        ranking.value.forEach((element, index) => {
             element.position = index + 1
             if(index > 0 && element.score === ranking.value[index-1].score)
-                element.position = ranking.value[index-1].position
-
-            return element
+                ranking.value[index].position = ranking.value[index-1].position
         });
     }
 
