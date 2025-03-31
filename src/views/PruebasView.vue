@@ -81,49 +81,24 @@
     /*** Calcular resultados ***/
     const ranking = ref<Participant[]>([]);
 
-    function orderResult(resultTrial:resultTrialPentatlon[]):resultTrialPentatlon[] {
-        return resultTrial.sort((result1, result2) => {
-            if(result1.result > result2.result)
-                return -1;
-            else if(result1.result < result2.result)
-                return 1;
-
-            return 0;
-        })
-    }
-
-    function givePoints(participants:Participant[], resultTrial:resultTrialPentatlon[], trial:number) {
-        const resultByScored:resultTrialPentatlon[] = orderResult(resultTrial)
-        resultByScored.forEach((result, index) => {
-            //Los resultados están ordenados por puntuación
-            if(index === 0) {
-                participants[result.index].score += 5
-                participants[result.index].trialsWon.push(trial)
-            } else if(index === 1){
-                //En caso de que tenga el mismo resultado que el héroe anterior, también será ganador
-                if(result.result === resultByScored[index-1].result) {
-                    participants[result.index].score += 5
-                    participants[result.index].trialsWon.push(trial)
-                } else {
-                    participants[result.index].score += 3
-                }
+    function givePoints(participants:Participant[], resultTrial:resultTrialPentatlon[], trial:number):void {
+        const resultByScored:resultTrialPentatlon[] = resultTrial.sort((result1, result2) => result2.result - result1.result)
+        const score:number[] = [5,3,1]
+        let actualScoreIndex = 0;
+        const setResults = new Set()
+        resultByScored.forEach((result,index) => {
+            //Si es el mismo resultado del anterior, comparten puesto (los tres pueden ser primeros)
+            if(setResults.has(result.result)) {
+                actualScoreIndex--
+                participants[result.index].score += score[actualScoreIndex]
             }
-            else{
-                //En caso de que tenga el mismo resultado que los dos héroes anteriores, también será ganador
-                if(result.result === resultByScored[index-1].result && result.result === resultByScored[index-2].result) {
-                    participants[result.index].score += 5
-                    participants[result.index].trialsWon.push(trial)
-                }
-                //En caso de que haya dos segundos
-                else if(result.result === resultByScored[index-1].result)
-                    participants[result.index].score += 3
-                else
-                    //Comprobar si hay dos primeros, en caso de que sí, quedas segundo
-                    if(resultByScored[index-1].result === resultByScored[index-2].result)
-                        participants[result.index].score += 3
-                    else
-                        participants[result.index].score += 1
-                }
+            //En caso contrario se le asigna el siguiente puesto
+            else {
+                setResults.add(result.result)
+                participants[result.index].score += score[actualScoreIndex]
+            }
+            if(actualScoreIndex===0) participants[result.index].trialsWon.push(trial)
+            actualScoreIndex++;
         })
     }
 
@@ -173,7 +148,6 @@
         givePoints(participants, results, 4);
 
         //Prueba 5: Rescate de cien gatitos
-
         results = []
         participants.forEach((participant,index) => {
             const extraPuntuacionGanoDosPruebas:number = participant.trialsWon.length >= 2 ? 5 : 0;
