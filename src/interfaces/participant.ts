@@ -6,3 +6,7 @@ export interface Participant {
     trialsWon: number[],
     position: number,
 }
+
+export interface resultTrialPentatlon {
+    index: number, result:number
+}

@@ -15,7 +15,7 @@
                     <h3 class="mb-5 text-lg font-normal text-gray-400">¿Estás seguro de que quieres borrar el héroe {{hero.name}}?</h3>
                     <div v-if="resultDelete.status === 'ERROR'">
                         <div class="flex flex-col md:flex-row gap-3 justify-center">
-                            <button @click="deleteHero" type="button" class="button-danger">
+                            <button @click="initDeleteHero" type="button" class="button-danger">
                                 Sí, estoy seguro
                             </button>
                             <button type="button" :data-modal-hide="props.htmlId" class="button">No, quiero volver</button>
@@ -34,8 +34,8 @@
 <script lang="ts" setup>
     import {ref, watch} from 'vue'
     import {type Hero} from '@/interfaces/heroes'
-    import { useHeroeStore } from '@/stores/heroesStore';
     import type { helperApiReturn } from '@/interfaces/utils';
+    import { useHero } from '@/composables/heroesComposable';
 
     interface Props {
         htmlId: string
@@ -47,14 +47,14 @@
         (e: 'deleteHero'): void 
     }>();
 
-    const heroesStore = useHeroeStore();
+    const {deleteHero} = useHero();
 
     const resultDelete = ref<helperApiReturn<string>>({status: 'ERROR', result: ""}) 
 
     
-    async function deleteHero():Promise<void> {
+    async function initDeleteHero():Promise<void> {
         if(props.hero.id) {
-            resultDelete.value = await heroesStore.deleteHero(props.hero.id)
+            resultDelete.value = await deleteHero(props.hero.id)
             emit('deleteHero');
         }
     }

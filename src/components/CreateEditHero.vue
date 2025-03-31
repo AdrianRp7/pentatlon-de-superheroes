@@ -63,7 +63,7 @@
                     <div class="flex flex-row-reverse" v-if="resultUpload.status === 'ERROR'">
                         <button type="submit" class="flex items-center gap-1 button mt-3" @click.prevent="uploadHero">
                             <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-                            {{hero.id === '' ? 'Añadir Héroe' : 'Modificar Héroe'}}
+                            {{hero.id === undefined ? 'Añadir Héroe' : 'Modificar Héroe'}}
                         </button>
                     </div>
                     <p class="font-bold mt-4 text-red-600 text-center" v-if="resultUpload.status === 'ERROR' && resultUpload.result.length !== 0">{{ resultUpload.result }}</p>
@@ -77,9 +77,9 @@
 <script lang="ts" setup>
     import rangeAtributes from "@/assets/ts/rangeAtributes"
     import type { Hero } from "@/interfaces/heroes";
-    import { useHeroeStore } from "@/stores/heroesStore";
     import { ref, toRaw, useTemplateRef, watch } from "vue";
     import { type helperApiReturn } from "../interfaces/utils";
+    import { useHero } from "@/composables/heroesComposable";
 
     const atributesSelectRange = rangeAtributes;
 
@@ -89,7 +89,7 @@
     }
     const props = defineProps<Props>();
 
-    const storeHero = useHeroeStore();
+    const {createHero, updateHero} = useHero();
     
     const emit = defineEmits<{
         (e: 'changeHero'): void
@@ -97,7 +97,7 @@
 
     //+++ Datos del formulario ++++
     
-    const hero = ref<Hero>(structuredClone(toRaw(props.hero)))
+    const hero = ref<Hero>(Object.assign({},props.hero))
     //Para limpiar el input cada vez que se vuelve abrir el popup
     const fileInput = useTemplateRef<HTMLInputElement | null>('file-image')
     
@@ -113,10 +113,10 @@
         if(errorName.value !== "")
             return;
 
-        if(hero.value.id === '') 
-            resultUpload.value = await storeHero.createHero(hero.value);
+        if(!hero.value.id) 
+            resultUpload.value = await createHero(hero.value);
         else
-            resultUpload.value = await storeHero.updateHero(hero.value);
+            resultUpload.value = await updateHero(hero.value);
 
         emit('changeHero');
     }
@@ -217,7 +217,7 @@
 
     watch(() => props.hero, async (newHero) => {
         //Actualiza con los datos del nuevo héroe y updatea
-        hero.value = structuredClone(toRaw(newHero));
+        hero.value = Object.assign({},newHero);
         errorPicture.value = ""
         errorName.value = ""
         if(fileInput.value)

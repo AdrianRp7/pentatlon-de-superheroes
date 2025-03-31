@@ -7,8 +7,8 @@
             </button>
         </div>
         <div class="cards-container mt-4">
-            <div class="flex flex-col md:flex-row flex-wrap justify-between gap-3" v-if="heroesStore.heroes.length !== 0">
-                <CardHero :hero="hero" v-for="hero in heroesStore.heroes">
+            <div class="flex flex-col md:flex-row flex-wrap justify-between gap-3" v-if="heroList.length !== 0">
+                <CardHero :hero="hero" v-for="hero in heroList">
                     <template #actions>
                         <div class="card-actions p-3 flex flex-col md:flex-row justify-between w-full gap-2">
                             <button class="button-danger" @click="deleteHero(hero)">Borrar héroe</button>
@@ -22,70 +22,58 @@
             </div>
         </div>
         
-        <CreateEditHero @changeHero="getListHeroes" :html-id="idPopupCreate" :hero="hero"></CreateEditHero>
-        <DeleteHero @deleteHero="getListHeroes" :html-id="idPopupDelete" :hero="hero"></DeleteHero>
+        <CreateEditHero @changeHero="changeHeroes" :html-id="idPopupCreate" :hero="hero"></CreateEditHero>
+        <DeleteHero @deleteHero="changeHeroes" :html-id="idPopupDelete" :hero="hero"></DeleteHero>
     </div>
 </template>
 
 <script lang="ts" setup>
     import type { Hero } from '@/interfaces/heroes';
-    import { useHeroeStore } from '@/stores/heroesStore';
-    import { onMounted, ref } from 'vue';
+    import { onMounted, ref, useTemplateRef } from 'vue';
     import { initFlowbite, Modal } from 'flowbite'
     import CreateEditHero from '@/components/CreateEditHero.vue';
     import CardHero from '@/components/CardHero.vue';
     import DeleteHero from '@/components/DeleteHero.vue';
+    import { useHero } from '@/composables/heroesComposable';
     
-    const heroesStore = useHeroeStore();
+    const {getEmptyHero, getListHero} = useHero();
     const messageError = ref("");
-    const idPopupCreate = "create-edit-hero"
-    const idPopupDelete = "delete-hero"
+    const idPopupCreate:string = "create-edit-hero"
+    const idPopupDelete:string = "delete-hero"
+
     let modalCreateEdit:Modal; 
     let modalDelete:Modal; 
 
-    const hero = ref<Hero>({
-        id: "",
-        name: "",
-        picture: "",
-        attributes: {
-            agility: 1,
-            strength: 1,
-            weight: 1,
-            endurance: 1,
-            charisma: 1,
-        }
-    });
+    const heroList = ref<Hero[]>([]);
+    const hero = ref<Hero>(getEmptyHero());
     
 
     function cleanHero() {
-        hero.value = {
-            id: "",
-            name: "",
-            picture: "",
-            attributes: {
-                agility: 1,
-                strength: 1,
-                weight: 1,
-                endurance: 1,
-                charisma: 1,
-            }
-        }
+        hero.value = getEmptyHero();
         modalCreateEdit.show()
     }
     
     function loadHero(heroCard: Hero) {
-        hero.value = heroCard;
+        hero.value = Object.assign({},heroCard);
         modalCreateEdit.show()
     }
 
     function deleteHero(heroCard: Hero) {
-        hero.value = heroCard;
+        hero.value = Object.assign({},heroCard);
         modalDelete.show()
     }
 
     async function getListHeroes() {
-        const result = await heroesStore.getListHero();
-        messageError.value = result !== 'OK' ? result : "";
+        const result = await getListHero();
+        if(result.status === "OK") {
+            heroList.value = result.result as Hero[];
+        }
+        else
+            messageError.value = result.result as string;
+    }
+
+    async function changeHeroes() {
+        await getListHeroes();
     }
 
     onMounted(async ()=>{

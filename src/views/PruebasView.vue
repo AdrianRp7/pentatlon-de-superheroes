@@ -43,18 +43,13 @@
 
 <script lang="ts" setup>
     import CardHero from '@/components/CardHero.vue';
+    import { useHero } from '@/composables/heroesComposable';
     import type { Hero } from '@/interfaces/heroes';
-    import type { Participant } from '@/interfaces/participant';
-    import { useHeroeStore } from '@/stores/heroesStore';
-    import { storeToRefs } from 'pinia';
+    import type { Participant, resultTrialPentatlon } from '@/interfaces/participant';
     import { onMounted, ref} from 'vue';
 
-    interface resultTrialPentatlon {
-        index: number, result:number
-    }
-
-    const storeHero = useHeroeStore()
-    const {heroes} = storeToRefs(storeHero)
+    const {getListHero} = useHero();
+    const heroList = ref<Hero[]>([]);
     const TOTALHEROES:number = 3
 
     const heroesPentatlon = ref<Hero[]>([]);
@@ -218,7 +213,9 @@
     }
 
     onMounted(async ()=>{
-        await storeHero.getListHero();
+        const result = await getListHero();
+        if(result.status === "OK")
+            heroList.value =  result.result as Hero[]
     })
 
     
