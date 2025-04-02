@@ -7,7 +7,10 @@
             </button>
         </div>
         <div class="cards-container mt-4">
-            <div class="flex flex-col md:flex-row flex-wrap justify-between gap-3" v-if="heroList.length !== 0">
+            <div class="mt-5" v-if="loading === true">
+                <Loader class="mx-auto text-center" textLoading="Loading Heroes..."></Loader>
+            </div>
+            <div class="flex flex-col md:flex-row flex-wrap justify-between gap-3" v-else-if="heroList.length !== 0">
                 <CardHero :hero="hero" v-for="hero in heroList">
                     <template #actions>
                         <div class="card-actions p-3 flex flex-col md:flex-row justify-between w-full gap-2">
@@ -29,15 +32,17 @@
 
 <script lang="ts" setup>
     import type { Hero } from '@/interfaces/heroes';
-    import { onMounted, ref, useTemplateRef } from 'vue';
+    import { onMounted, ref } from 'vue';
     import { initFlowbite, Modal } from 'flowbite'
     import CreateEditHero from '@/components/Hero/CreateEditHero.vue';
     import CardHero from '@/components/Hero/CardHero.vue';
     import DeleteHero from '@/components/Hero/DeleteHero.vue';
+    import Loader from '@/components/utils/Loader.vue';
     import { useHero } from '@/composables/heroesComposable';
     
     const {getEmptyHero, getListHero} = useHero();
     const messageError = ref("");
+    const loading = ref(false);
     const idPopupCreate:string = "create-edit-hero"
     const idPopupDelete:string = "delete-hero"
 
@@ -73,11 +78,13 @@
     }
 
     async function changeHeroes() {
+        loading.value = true;
         await getListHeroes();
+        loading.value = false;
     }
 
     onMounted(async ()=>{
-        await getListHeroes()
+        await changeHeroes()
         modalCreateEdit = new Modal(document.getElementById(idPopupCreate));
         modalDelete = new Modal(document.getElementById(idPopupDelete));
         initFlowbite();

@@ -23,3 +23,7 @@ button {
 .background-popup {
     background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75));
 }
+
+.background-color-base {
+    @apply bg-gray-600 text-white; 
+}
